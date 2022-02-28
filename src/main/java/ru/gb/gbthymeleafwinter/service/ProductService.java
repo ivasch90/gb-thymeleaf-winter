@@ -8,13 +8,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.gb.gbthymeleafwinter.dao.CartRepository;
 import ru.gb.gbthymeleafwinter.dao.ProductDao;
 import ru.gb.gbthymeleafwinter.entity.Product;
 import ru.gb.gbthymeleafwinter.entity.enums.Status;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -23,6 +22,7 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductDao productDao;
+    private final CartRepository cartRepository;
 
     public Product save(Product product) {
         if (product.getId() != null) {
@@ -96,5 +96,28 @@ public class ProductService {
         System.out.println(productDao.count());
         // какая-то логика
         return productDao.count();
+    }
+
+    public void addProductToCart(Long id) {
+        if (id != null) {
+            Product productFromDb = productDao.findById(id).orElse(null);
+            if (productFromDb == null) throw new AssertionError();
+            cartRepository.addProduct(productFromDb);
+        }
+    }
+
+    public List<Product> showCart() {
+        return cartRepository.showCart();
+    }
+
+    public void deleteFromCartById(Long id) {
+        List<Product> list = cartRepository.showCart();
+        for (Product product : list) {
+            if (product.getId().equals(id)) {
+                cartRepository.deleteProduct(product);
+                break;
+            }
+        }
+
     }
 }
