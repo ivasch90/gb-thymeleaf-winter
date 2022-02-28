@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.gb.gbthymeleafwinter.entity.Product;
 import ru.gb.gbthymeleafwinter.service.ProductService;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/product")
@@ -43,6 +45,27 @@ public class ProductController {
     public String deleteById(@RequestParam(name = "id") Long id) {
         productService.deleteById(id);
         return "redirect:/product/all";
+    }
+
+    @GetMapping("/cart")
+    public String showCart (Model model) {
+        List<Product> products = productService.showCart();
+        model.addAttribute("products", products);
+        return "cart";
+    }
+
+    @GetMapping("/cart/add")
+    public String addToCart(@RequestParam(name = "id") Long id) {
+        if (id != null) {
+            productService.addProductToCart(id);
+        }
+        return "redirect:/product/cart";
+    }
+
+    @GetMapping("/cart/delete")
+    public String deleteFromCart(@RequestParam(name = "id") Long id) {
+        productService.deleteFromCartById(id);
+        return "redirect:/product/cart";
     }
 
 }
